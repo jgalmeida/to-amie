@@ -1,0 +1,50 @@
+services:
+  amie-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: amie-api
+    command: sh -c "npx wait-on --timeout 10s tcp:db-amie-api:3306 && npm run dev"
+    ports:
+      - 3000:3000
+      - 3001:3001
+    environment:
+      NODE_ENV: dev
+      MYSQL_HOST: db-amie-api
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DB: amie-api
+      HTTP_PORT: 3000
+      DEBUG_PORT: 3001
+      DEBUG: knex:query
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - .:/opt/amie-api/
+    depends_on:
+      - db-amie-api
+    networks:
+      - amie-api
+
+  db-amie-api:
+    image: mysql:8.0.33
+    container_name: db-amie-api
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - '33335:3306'
+    environment:
+      MYSQL_DATABASE: amie-api
+      MYSQL_ROOT_PASSWORD: root
+    restart: unless-stopped
+    volumes:
+      - mysql-volume:/var/lib/mysql
+    networks:
+      - amie-api
+
+networks:
+  amie-api:
+    driver: bridge
+
+volumes:
+  mysql-volume:

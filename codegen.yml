@@ -1,0 +1,12 @@
+overwrite: true
+schema: './src/graphql/typedefs/*.ts'
+generates:
+  src/graphql/generated/graphql.ts:
+    config:
+      contextType: ../server#Context
+      mapperTypeSuffix: Model
+      maybeValue: T
+      scalars: { Date: 'Date' }
+    plugins:
+      - 'typescript'
+      - 'typescript-resolvers'
