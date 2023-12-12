@@ -1,3 +1,4 @@
+import assert from 'assert';
 export interface DatabaseConfig {
   host: string;
   port: number;
@@ -21,3 +22,8 @@ export const env = {
     'live' === process.env.NODE_ENV || 'test' === process.env.NODE_ENV
   ),
 };
+
+assert(process.env.TODOIST_TOKEN, 'Please provide TODOIST api token');
+export const TODO_IST_TOKEN = process.env.TODOIST_TOKEN;
+
+export const ACCOUNT_ID = '05a76d74-b327-43f4-92b0-e5f8cc42ffd1';

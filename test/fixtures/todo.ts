@@ -6,6 +6,7 @@ export function createTodo(todo?: Partial<Todo>): Omit<Todo, 'id'> {
   const id = uuidv4();
 
   const defaultTodo = {
+    accountId: id,
     name: `Todo - ${id}`,
     completed: false,
     listId: 1,

@@ -4,7 +4,10 @@ import { logger } from '../../src/logger';
 import { getConnection } from '../../src/adapters/mysql';
 import { DatabaseConfig } from '../../src/constants';
 import { NewTodo } from '../../src/entities/todo';
-import { TODOS_TABLE, transform } from '../../src/repositories/todo-repository';
+import {
+  TODOS_TABLE,
+  transform,
+} from '../../src/repositories/todos-repository';
 
 let databaseContainer: StartedMySqlContainer;
 

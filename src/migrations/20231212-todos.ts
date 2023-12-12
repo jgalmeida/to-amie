@@ -1,11 +1,12 @@
 import { Knex } from 'knex';
 import { LISTS_TABLE } from '../repositories/list-repository';
-import { TODOS_TABLE } from '../repositories/todo-repository';
+import { TODOS_TABLE } from '../repositories/todos-repository';
 
 export function up(knex: Knex) {
   return knex.schema
     .createTable(LISTS_TABLE, function (table) {
       table.increments('id').primary();
+      table.string('account_id').notNullable();
       table.string('name').notNullable();
       table.dateTime('created_at').notNullable();
 
@@ -13,13 +14,12 @@ export function up(knex: Knex) {
     })
     .createTable(TODOS_TABLE, function (table) {
       table.increments('id').primary();
+      table.string('account_id').notNullable();
       table.string('name').notNullable();
       table.boolean('completed').notNullable();
       table.integer('list_id').unsigned().notNullable();
       table.dateTime('created_at').notNullable();
 
-      table.unique(['name', 'list_id']);
-      table.index('name');
       table.index('created_at');
 
       table

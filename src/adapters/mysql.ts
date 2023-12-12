@@ -1,6 +1,13 @@
 import knex, { Knex } from 'knex';
 import path from 'path';
+
+import * as connectionRepository from '../repositories/connections-repository';
+
 import { ERR_DATABASE, ERR_DUPLICATE } from '../errors';
+import { ACCOUNT_ID, TODO_IST_TOKEN, env } from '../constants';
+import { Provider } from '../entities/provider';
+import { Status } from '../entities/connection';
+import logger from 'koa-pino-logger';
 
 let pool: Knex;
 
@@ -25,6 +32,8 @@ export async function initDatabaseConnection(opts: MysqlOptions) {
   await pool.migrate.latest({
     directory: `${__dirname}/../migrations`,
   });
+
+  await seed();
 }
 
 export function closeDatabaseConnection() {
@@ -53,4 +62,33 @@ export async function withinConnection<T>({
 
 export function mysqlDateTime(date: Date): string {
   return date.toISOString().slice(0, 23).replace('T', ' ');
+}
+
+export async function seed(): Promise<void> {
+  const connectionExists = await connectionRepository.findMany({
+    ctx: {
+      log: logger as any,
+    },
+    accountId: ACCOUNT_ID,
+    provider: Provider.TODO_IST,
+  });
+
+  if (connectionExists.length) {
+    return;
+  }
+
+  await connectionRepository.create({
+    ctx: {
+      log: logger as any,
+    },
+    newConnection: {
+      accountId: ACCOUNT_ID,
+      provider: Provider.TODO_IST,
+      status: Status.Stopped,
+      token: TODO_IST_TOKEN,
+      syncToken: null,
+      syncTokenExpiresAt: null,
+      updatedAt: new Date(),
+    },
+  });
 }

@@ -43,6 +43,7 @@ export async function create({ todo }: CreateArgs): Promise<Todo> {
 export function transform(todo: Todo): TodoRow {
   return {
     id: todo.id,
+    account_id: todo.accountId,
     name: todo.name,
     completed: todo.completed,
     list_id: todo.listId,
@@ -53,6 +54,7 @@ export function transform(todo: Todo): TodoRow {
 export function reverseTransform(todoRow: TodoRow): Todo {
   return {
     id: todoRow.id,
+    accountId: todoRow.account_id,
     name: todoRow.name,
     completed: todoRow.completed,
     listId: todoRow.list_id,

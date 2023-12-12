@@ -1,7 +1,7 @@
 import { Context } from '../entities/context';
 import { OrderBy } from '../entities/enums';
 import { NewTodo, Todo } from '../entities/todo';
-import * as todoRepository from '../repositories/todo-repository';
+import * as todoRepository from '../repositories/todos-repository';
 
 interface FindManyArgs {
   ctx: Context;
