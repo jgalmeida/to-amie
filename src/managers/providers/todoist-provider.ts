@@ -43,16 +43,8 @@ export class TodoIstProvider {
   }
 
   async findMany(ctx: ProviderContext): Promise<FindManyResponse> {
-    const response = await request<IncrementalSyncResponse>({
-      url: this.baseUrl,
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-      },
-      json: {
-        sync_token: ctx.syncToken || '',
-        resource_types: ['items'],
-      },
+    const response = await this.doRequest({
+      syncToken: ctx.syncToken,
     });
 
     return {
@@ -69,24 +61,16 @@ export class TodoIstProvider {
     todo: IntegrationTodo;
   }): Promise<CreateResponse> {
     const tempId = v4();
-    const response = await request<IncrementalSyncResponse>({
-      url: this.baseUrl,
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-      },
-      json: {
-        sync_token: ctx.syncToken || '',
-        resource_types: ['items'],
-        commands: [
-          {
-            type: 'item_add',
-            temp_id: tempId,
-            uuid: v4(),
-            args: transform(todo),
-          },
-        ],
-      },
+    const response = await this.doRequest({
+      syncToken: ctx.syncToken,
+      commands: [
+        {
+          type: 'item_add',
+          temp_id: tempId,
+          uuid: v4(),
+          args: transform(todo),
+        },
+      ],
     });
 
     return {
@@ -104,26 +88,18 @@ export class TodoIstProvider {
     id: string;
     todo: IntegrationTodo;
   }): Promise<UpdateResponse> {
-    const response = await request<IncrementalSyncResponse>({
-      url: this.baseUrl,
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-      },
-      json: {
-        sync_token: ctx.syncToken || '',
-        resource_types: ['items'],
-        commands: [
-          {
-            type: 'item_update',
-            uuid: v4(),
-            args: {
-              id: todo.id,
-              content: todo.name,
-            },
+    const response = await this.doRequest({
+      syncToken: ctx.syncToken,
+      commands: [
+        {
+          type: 'item_update',
+          uuid: v4(),
+          args: {
+            id: todo.id,
+            content: todo.name,
           },
-        ],
-      },
+        },
+      ],
     });
 
     return {
@@ -139,30 +115,43 @@ export class TodoIstProvider {
     id: string;
     todo: IntegrationTodo;
   }): Promise<UpdateResponse> {
-    const response = await request<IncrementalSyncResponse>({
+    const response = await this.doRequest({
+      syncToken: ctx.syncToken,
+      commands: [
+        {
+          type: 'item_complete',
+          uuid: v4(),
+          args: {
+            id,
+          },
+        },
+      ],
+    });
+
+    return {
+      syncToken: response.sync_token,
+    };
+  }
+
+  private async doRequest<T>({
+    syncToken = '*',
+    commands,
+  }: {
+    syncToken?: string;
+    commands?: any[];
+  }): Promise<IncrementalSyncResponse> {
+    return request<IncrementalSyncResponse>({
       url: this.baseUrl,
       method: 'POST',
       headers: {
         Authorization: `Bearer ${this.token}`,
       },
       json: {
-        sync_token: ctx.syncToken || '',
+        sync_token: syncToken,
         resource_types: ['items'],
-        commands: [
-          {
-            type: 'item_complete',
-            uuid: v4(),
-            args: {
-              id,
-            },
-          },
-        ],
+        ...(commands && { commands }),
       },
     });
-
-    return {
-      syncToken: response.sync_token,
-    };
   }
 }
 
