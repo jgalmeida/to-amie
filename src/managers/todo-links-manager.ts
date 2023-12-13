@@ -4,14 +4,8 @@ import * as todoLinksRepository from '../repositories/todos-links-repository';
 
 export async function findOne(
   args: todoLinksRepository.FindOneArgs,
-): Promise<TodoLink> {
-  const todoLink = await todoLinksRepository.findOne(args);
-
-  if (!todoLink) {
-    throw new Error('Todo link not found');
-  }
-
-  return todoLink;
+): Promise<TodoLink | undefined> {
+  return todoLinksRepository.findOne(args);
 }
 
 interface CreateArgs {

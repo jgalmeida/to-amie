@@ -1,3 +1,4 @@
+import { Paginated } from '../entities/common';
 import { Context } from '../entities/context';
 import { OrderBy } from '../entities/enums';
 import { EventType } from '../entities/event';
@@ -12,7 +13,7 @@ interface FindManyArgs {
   after?: number;
 }
 
-export async function findMany(args: FindManyArgs): Promise<Todo[]> {
+export async function findMany(args: FindManyArgs): Promise<Paginated<Todo[]>> {
   return todoRepository.findMany(args);
 }
 

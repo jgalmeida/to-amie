@@ -9,8 +9,13 @@ const TodoGQL = gql`
     createdAt: Date
   }
 
+  type TodoOutput {
+    hasMore: Boolean
+    after: Int
+    data: [Todo]
+  }
   extend type Query {
-    todos(limit: Int, after: Int): [Todo]
+    todos(limit: Int, after: Int): TodoOutput
     todo(id: Int!): Todo
   }
 

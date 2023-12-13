@@ -1,5 +1,5 @@
 import { Event, EventType } from '../entities/event';
-import * as todoLinkManager from '../managers/todo-links-manager';
+import * as todoLinksManager from '../managers/todo-links-manager';
 import * as connectionManager from '../managers/connections-manager';
 import * as providerManager from '../managers/providers';
 import { logger } from '../logger';
@@ -44,7 +44,7 @@ export async function onEventWriteTodoIst(event: Event): Promise<void> {
         await connectionManager.update({ ctx, connection });
       */
 
-      await todoLinkManager.create({
+      await todoLinksManager.create({
         ctx,
         todoLink: {
           acccountId: ctx.accountId,
@@ -57,7 +57,7 @@ export async function onEventWriteTodoIst(event: Event): Promise<void> {
     }
 
     case EventType.Update: {
-      const link = await todoLinkManager.findOne({
+      const link = await todoLinksManager.findOne({
         ctx,
         connectionId: connection.id,
         todoId: todo.id,
@@ -88,7 +88,7 @@ export async function onEventWriteTodoIst(event: Event): Promise<void> {
     }
 
     case EventType.Complete: {
-      const link = await todoLinkManager.findOne({
+      const link = await todoLinksManager.findOne({
         ctx,
         connectionId: connection.id,
         todoId: todo.id,

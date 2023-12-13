@@ -1,4 +1,5 @@
 import { mysqlDateTime, withinConnection } from '../adapters/mysql';
+import { Paginated } from '../entities/common';
 import { Context } from '../entities/context';
 import { OrderBy } from '../entities/enums';
 import { Todo, TodoRow } from '../entities/todo';
@@ -17,7 +18,7 @@ export async function findMany({
   created = OrderBy.Asc,
   limit = 10,
   after,
-}: FindManyArgs): Promise<Todo[]> {
+}: FindManyArgs): Promise<Paginated<Todo[]>> {
   return withinConnection({
     callback: async (conn) => {
       const todoRows = await conn
@@ -25,12 +26,18 @@ export async function findMany({
         .where((builder) => {
           builder.where({ account_id: ctx.accountId });
 
-          isDefined(after, (id) => builder.where('id', '>', after));
+          isDefined(after, () => builder.where('id', '>', after));
         })
         .orderBy('created_at', created)
         .limit(limit);
 
-      return todoRows.map(reverseTransform);
+      const data = todoRows.map(reverseTransform);
+
+      return {
+        data,
+        hasMore: data.length && data.length === limit,
+        after: data.length ? data[data.length - 1].id : null,
+      };
     },
   });
 }
