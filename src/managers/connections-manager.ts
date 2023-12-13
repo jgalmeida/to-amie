@@ -1,5 +1,17 @@
-import { Connection } from '../entities/connection';
+import { Connection, Status } from '../entities/connection';
+import { Context } from '../entities/context';
+import { logger } from '../logger';
 import * as connectionsRepository from '../repositories/connections-repository';
+
+export async function findConnectionsReadyToSync(): Promise<Connection[]> {
+  return connectionsRepository.findMany({
+    ctx: {
+      log: logger,
+    } as Context,
+    status: Status.Ready,
+    lock: true,
+  });
+}
 
 export async function findOne(
   args: connectionsRepository.FindManyArgs,
@@ -27,6 +39,17 @@ export async function update({
   ctx,
   connection,
 }: connectionsRepository.UpdateArgs): Promise<void> {
+  return connectionsRepository.update({
+    ctx,
+    connection,
+  });
+}
+
+export async function readyToSync({
+  ctx,
+  connection,
+}: connectionsRepository.UpdateArgs): Promise<void> {
+  connection.status = Status.Ready;
   return connectionsRepository.update({
     ctx,
     connection,

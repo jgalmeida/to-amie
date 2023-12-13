@@ -3,6 +3,7 @@ import { Provider } from './provider';
 export enum Status {
   Stopped = 'stopped',
   Warming = 'warming',
+  Ready = 'ready',
   Syncing = 'syncing',
 }
 

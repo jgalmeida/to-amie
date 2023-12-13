@@ -10,6 +10,7 @@ import { ACCOUNT_ID, DatabaseConfig } from './constants';
 import { error, lifecycle } from './middlewares';
 import { createApolloServer } from './graphql/server';
 import { logger } from './logger';
+import { initCronJobs } from './jobs';
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ export async function createApp(databaseConfig?: DatabaseConfig): Promise<Koa> {
 
   await initDatabaseConnection(databaseConfig);
   initListeners();
+  initCronJobs();
 
   app
     .use(error)

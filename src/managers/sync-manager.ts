@@ -15,8 +15,16 @@ interface StartSyncArgs {
 interface SyncArgs {
   ctx: Context;
   connection: Connection;
+  currentSyncToken?: string;
 }
-
+/*
+ *
+ * If the process crashes in the middle of the initial sync, it needs to start from scratch
+ * Ideally after each page is processed, the state would be saved to be resumed
+ *
+ *
+ * We would also need to rate limit when calling the provider, queuing can be used for that
+ */
 export async function startSync({
   ctx,
   connectionId,
@@ -39,12 +47,21 @@ export async function startSync({
   return true;
 }
 
-async function inboundSync({ ctx, connection }: SyncArgs) {
+export async function inboundSync({
+  ctx,
+  connection,
+  currentSyncToken = undefined,
+}: SyncArgs) {
   const provider = providerManager.build(connection.provider, connection.token);
 
   const { todos, syncToken } = await provider.findMany({
-    syncToken: undefined,
+    syncToken: currentSyncToken,
   });
+
+  /*   connection.syncToken = syncToken;
+  await connectionManager.update({ ctx, connection });
+
+  return; */
 
   const localPromisses = [];
 
@@ -99,11 +116,10 @@ async function inboundSync({ ctx, connection }: SyncArgs) {
   await connectionManager.update({ ctx, connection });
 }
 
-async function outboundSync({ ctx, connection }: SyncArgs) {
+export async function outboundSync({ ctx, connection }: SyncArgs) {
   const provider = providerManager.build(connection.provider, connection.token);
 
   let promises = [];
-  let syncToken;
   let paginatedTodos: Paginated<Todo[]> = {
     hasMore: true,
     after: 0,
@@ -159,7 +175,6 @@ async function outboundSync({ ctx, connection }: SyncArgs) {
               },
             });
 
-            syncToken = providerResponse.syncToken;
             connection.syncToken = providerResponse.syncToken;
             await connectionManager.update({ ctx, connection });
 
@@ -171,16 +186,14 @@ async function outboundSync({ ctx, connection }: SyncArgs) {
       );
     }
 
-    console.log('benfica', paginatedTodos.hasMore);
-
     await Promise.all(promises);
   } while (paginatedTodos.hasMore);
 }
 
-async function keepSyncing({ ctx, connection }: SyncArgs) {
+export async function keepSyncing({ ctx, connection }: SyncArgs) {
   /*
    * There is a job taking syncing all connection in syncing state
    */
-  connection.status = Status.Syncing;
+  connection.status = Status.Ready;
   await connectionManager.update({ ctx, connection });
 }

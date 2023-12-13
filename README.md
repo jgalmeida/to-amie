@@ -96,6 +96,6 @@ Get TODOS
 
 ### Documentation
 
-#### If you are feeling like your code need some comments please do it.
-
-#### If you are certain that the informations in the README are sufficient - that’s fine as well.
+- No batching
+- No caching
+- No data reuse - i.e if the same request needs the same data, it's being fetched from the DB everytime

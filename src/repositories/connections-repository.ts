@@ -15,26 +15,60 @@ export interface FindManyArgs {
   ctx: Context;
   id?: number;
   provider?: Provider;
+  status?: Status;
   updatedAt?: Date;
+  lock?: Boolean;
+  limit?: number;
 }
+
+/*
+ * This should be paginated
+ */
 export async function findMany({
   ctx,
   id,
   provider,
+  status,
   updatedAt,
+  lock,
+  limit = 10,
 }: FindManyArgs): Promise<Connection[]> {
   return withinConnection({
     callback: async (conn) => {
-      const connectionsRows = await conn
+      const query = conn
         .table(CONNECTIONS_TABLE)
         .where((builder) => {
-          builder.where({ account_id: ctx.accountId });
-          isDefined(provider, () => builder.where({ provider }));
-          isDefined(id, () => builder.where({ id }));
-          isDefined(updatedAt, () => builder.where({ updated_at: updatedAt }));
-        });
+          isDefined(ctx.accountId, () =>
+            builder.where({ account_id: ctx.accountId }),
+          );
 
-      return connectionsRows.map(reverseTransform);
+          isDefined(id, () => builder.where({ id }));
+          isDefined(provider, () => builder.where({ provider }));
+          isDefined(status, () => builder.where({ status }));
+          isDefined(updatedAt, () => builder.where({ updated_at: updatedAt }));
+        })
+        .limit(limit);
+
+      if (lock) {
+        query.forUpdate().skipLocked();
+      }
+
+      const data = (await query).map(reverseTransform);
+
+      if (lock && data.length) {
+        await conn
+          .table(CONNECTIONS_TABLE)
+          .update({
+            status: Status.Syncing,
+            updated_at: mysqlDateTime(new Date()),
+          })
+          .whereIn(
+            'id',
+            data.map((row) => row.id),
+          );
+      }
+
+      return data;
     },
   });
 }
