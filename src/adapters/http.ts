@@ -10,7 +10,7 @@ export async function request<T>(
     return response as T;
   } catch (e) {
     if (e instanceof RequestError) {
-      logger.error('Error generating access token', e.response?.body);
+      logger.error(e.response.body);
     }
 
     throw e;

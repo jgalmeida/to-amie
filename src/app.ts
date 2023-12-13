@@ -5,9 +5,11 @@ import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 
 import { initDatabaseConnection } from './adapters/mysql';
+import { initListeners } from './listeners';
 import { ACCOUNT_ID, DatabaseConfig } from './constants';
 import { error, lifecycle } from './middlewares';
 import { createApolloServer } from './graphql/server';
+import { logger } from './logger';
 
 dotenv.config();
 
@@ -17,6 +19,7 @@ export async function createApp(databaseConfig?: DatabaseConfig): Promise<Koa> {
   await apolloServer.start();
 
   await initDatabaseConnection(databaseConfig);
+  initListeners();
 
   app
     .use(error)
@@ -26,6 +29,7 @@ export async function createApp(databaseConfig?: DatabaseConfig): Promise<Koa> {
     .use(
       koaMiddleware(apolloServer, {
         context: async () => ({
+          log: logger,
           accountId: ACCOUNT_ID,
         }),
       }),

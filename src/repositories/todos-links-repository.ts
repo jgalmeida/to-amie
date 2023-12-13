@@ -5,10 +5,10 @@ import { isDefined } from '../tools/is';
 
 export const TODOS_LINKS_TABLE = 'todos_links';
 
-interface FindOneArgs {
+export interface FindOneArgs {
   ctx: Context;
   connectionId: number;
-  todoId?: string;
+  todoId?: number;
   providerId?: string;
 }
 export async function findOne({

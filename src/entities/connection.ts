@@ -13,7 +13,6 @@ export type Connection = {
   status: Status;
   token: string;
   syncToken?: string;
-  syncTokenExpiresAt?: Date;
   updatedAt: Date;
 };
 
@@ -26,6 +25,5 @@ export type ConnectionRow = {
   status: string;
   token: string;
   sync_token?: string;
-  sync_token_expires_at?: string;
   updated_at: string;
 };

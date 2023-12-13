@@ -19,8 +19,15 @@ const TodoGQL = gql`
     listId: Int!
   }
 
+  input UpdateTodoInput {
+    id: Int!
+    name: String!
+  }
+
   extend type Mutation {
+    startSync(connectionId: Int!): Boolean
     createTodo(input: CreateTodoInput): Todo
+    updateTodo(input: UpdateTodoInput): Todo
     completeTodo(id: Int!): Todo
   }
 `;

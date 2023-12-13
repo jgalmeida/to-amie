@@ -18,3 +18,10 @@ export type TodoRow = {
   list_id: number;
   created_at: string;
 };
+
+export type IntegrationTodo = {
+  id?: string;
+  name: string;
+  completed: boolean;
+  createdAt: Date;
+};

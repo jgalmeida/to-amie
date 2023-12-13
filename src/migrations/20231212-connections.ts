@@ -10,7 +10,6 @@ export function up(knex: Knex) {
     table.string('status').notNullable();
     table.string('token').notNullable();
     table.string('sync_token');
-    table.string('sync_token_expires_at');
     table.dateTime('updated_at').notNullable();
   });
 }

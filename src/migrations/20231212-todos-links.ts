@@ -6,7 +6,6 @@ export function up(knex: Knex) {
     table.increments('id').primary();
     table.integer('account_id').unsigned().notNullable();
     table.integer('connection_id').unsigned().notNullable();
-    table.string('provider').notNullable();
     table.string('todo_id').notNullable();
     table.string('provider_id').notNullable();
   });

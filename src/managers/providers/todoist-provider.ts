@@ -1,9 +1,37 @@
+import { v4 } from 'uuid';
 import { request } from '../../adapters/http';
-import { Todo } from '../../entities/todo';
+import { IntegrationTodo } from '../../entities/todo';
 
 interface ProviderContext {
   syncToken: string;
-  resourceTypes: string[];
+}
+
+type TodoIST = {
+  id: string;
+  checked: boolean;
+  content: string;
+  added_at: string;
+};
+
+interface IncrementalSyncResponse {
+  items: TodoIST[];
+  full_sync: boolean;
+  temp_id_mapping: Record<string, string>;
+  sync_token: string;
+}
+
+interface FindManyResponse {
+  syncToken: string;
+  todos: IntegrationTodo[];
+}
+
+interface CreateResponse {
+  syncToken: string;
+  id: string;
+}
+
+interface UpdateResponse {
+  syncToken: string;
 }
 
 export class TodoIstProvider {
@@ -14,55 +42,144 @@ export class TodoIstProvider {
     this.token = token;
   }
 
-  async createTodo(ctx: ProviderContext, todo: Todo): Promise<string> {
-    const response = await request({
+  async findMany(ctx: ProviderContext): Promise<FindManyResponse> {
+    const response = await request<IncrementalSyncResponse>({
       url: this.baseUrl,
       method: 'POST',
       headers: {
         Authorization: `Bearer ${this.token}`,
       },
       json: {
-        sync_token: ctx.syncToken,
-        resource_types: ctx.resourceTypes,
+        sync_token: ctx.syncToken || '',
+        resource_types: ['items'],
       },
     });
 
-    console.log(response);
-
-    return '';
+    return {
+      syncToken: response.sync_token,
+      todos: response.items.map(reverseTransform),
+    };
   }
 
-  async getTodos(ctx: ProviderContext): Promise<Todo[]> {
-    const response = await request({
+  async create({
+    ctx,
+    todo,
+  }: {
+    ctx: ProviderContext;
+    todo: IntegrationTodo;
+  }): Promise<CreateResponse> {
+    const tempId = v4();
+    const response = await request<IncrementalSyncResponse>({
       url: this.baseUrl,
       method: 'POST',
       headers: {
         Authorization: `Bearer ${this.token}`,
       },
       json: {
-        sync_token: ctx.syncToken,
-        resource_types: ctx.resourceTypes,
+        sync_token: ctx.syncToken || '',
+        resource_types: ['items'],
+        commands: [
+          {
+            type: 'item_add',
+            temp_id: tempId,
+            uuid: v4(),
+            args: transform(todo),
+          },
+        ],
       },
     });
 
-    console.log(response);
-
-    return [];
+    return {
+      syncToken: response.sync_token,
+      id: response.temp_id_mapping[tempId],
+    };
   }
 
-  async updateTodo(ctx: ProviderContext, todo: Todo): Promise<void> {
-    const response = await request({
+  async update({
+    ctx,
+    id,
+    todo,
+  }: {
+    ctx: ProviderContext;
+    id: string;
+    todo: IntegrationTodo;
+  }): Promise<UpdateResponse> {
+    const response = await request<IncrementalSyncResponse>({
       url: this.baseUrl,
       method: 'POST',
       headers: {
         Authorization: `Bearer ${this.token}`,
       },
       json: {
-        sync_token: ctx.syncToken,
-        resource_types: ctx.resourceTypes,
+        sync_token: ctx.syncToken || '',
+        resource_types: ['items'],
+        commands: [
+          {
+            type: 'item_update',
+            uuid: v4(),
+            args: {
+              id: todo.id,
+              content: todo.name,
+            },
+          },
+        ],
       },
     });
 
-    console.log(response);
+    return {
+      syncToken: response.sync_token,
+    };
   }
+
+  async complete({
+    ctx,
+    id,
+  }: {
+    ctx: ProviderContext;
+    id: string;
+    todo: IntegrationTodo;
+  }): Promise<UpdateResponse> {
+    const response = await request<IncrementalSyncResponse>({
+      url: this.baseUrl,
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+      },
+      json: {
+        sync_token: ctx.syncToken || '',
+        resource_types: ['items'],
+        commands: [
+          {
+            type: 'item_complete',
+            uuid: v4(),
+            args: {
+              id,
+            },
+          },
+        ],
+      },
+    });
+
+    return {
+      syncToken: response.sync_token,
+    };
+  }
+}
+
+export function transform(todo: IntegrationTodo): TodoIST {
+  return {
+    id: todo.id,
+    checked: todo.completed,
+    content: todo.name,
+    added_at: todo.createdAt.toISOString(),
+  };
+}
+
+export function reverseTransform(todoIst: TodoIST): IntegrationTodo {
+  return {
+    id: todoIst.id,
+    name: todoIst.content,
+    completed: todoIst.checked,
+    createdAt: new Date(todoIst.added_at),
+  };
 }

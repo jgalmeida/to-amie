@@ -11,23 +11,26 @@ import { Provider } from '../entities/provider';
 
 export const CONNECTIONS_TABLE = 'connections';
 
-interface FindMany {
+export interface FindManyArgs {
   ctx: Context;
-  provider: Provider;
+  id?: number;
+  provider?: Provider;
   updatedAt?: Date;
 }
 export async function findMany({
   ctx,
+  id,
   provider,
   updatedAt,
-}: FindMany): Promise<Connection[]> {
+}: FindManyArgs): Promise<Connection[]> {
   return withinConnection({
     callback: async (conn) => {
       const connectionsRows = await conn
         .table(CONNECTIONS_TABLE)
         .where((builder) => {
           builder.where({ account_id: ctx.accountId });
-          builder.where({ provider });
+          isDefined(provider, () => builder.where({ provider }));
+          isDefined(id, () => builder.where({ id }));
           isDefined(updatedAt, () => builder.where({ updated_at: updatedAt }));
         });
 
@@ -36,7 +39,7 @@ export async function findMany({
   });
 }
 
-interface CreateArgs {
+export interface CreateArgs {
   ctx: Context;
   newConnection: Omit<NewConnection, 'id'>;
 }
@@ -57,6 +60,22 @@ export async function create({
   });
 }
 
+export interface UpdateArgs {
+  ctx: Context;
+  connection: Connection;
+}
+export async function update({ ctx, connection }: UpdateArgs): Promise<void> {
+  await withinConnection({
+    callback: async (conn) => {
+      const ids = await conn
+        .table(CONNECTIONS_TABLE)
+        .where({ account_id: ctx.accountId })
+        .where({ id: connection.id })
+        .update(transform(connection));
+    },
+  });
+}
+
 export function transform(connection: Connection): ConnectionRow {
   return {
     id: connection.id,
@@ -65,9 +84,6 @@ export function transform(connection: Connection): ConnectionRow {
     status: connection.status,
     token: connection.token,
     sync_token: connection.syncToken,
-    sync_token_expires_at: connection.syncTokenExpiresAt
-      ? mysqlDateTime(connection.syncTokenExpiresAt)
-      : null,
     updated_at: mysqlDateTime(connection.updatedAt),
   };
 }
@@ -80,7 +96,6 @@ export function reverseTransform(connectionRow: ConnectionRow): Connection {
     status: connectionRow.status as Status,
     token: connectionRow.token,
     syncToken: connectionRow.sync_token,
-    syncTokenExpiresAt: new Date(connectionRow.sync_token_expires_at),
     updatedAt: new Date(connectionRow.updated_at),
   };
 }

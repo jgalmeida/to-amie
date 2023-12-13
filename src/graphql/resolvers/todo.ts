@@ -1,51 +1,51 @@
 import { Resolvers } from '../generated/graphql';
 
 import * as todoManager from '../../managers/todo-manager';
-import { logger } from '../../logger';
+import * as syncManager from '../../managers/sync-manager';
 
 const resolvers: Resolvers = {
   Query: {
-    todos: (_, { limit, after }, { accountId }) => {
+    todos: (_, { limit, after }, ctx) => {
       return todoManager.findMany({
-        ctx: {
-          log: logger,
-          accountId,
-        },
+        ctx,
         limit,
         after,
       });
     },
-    todo: (_, { id }, { accountId }) => {
+    todo: (_, { id }, ctx) => {
       return todoManager.findOne({
-        ctx: {
-          log: logger,
-          accountId,
-        },
+        ctx,
         id,
       });
     },
   },
   Mutation: {
-    createTodo: async (_, { input }, { accountId }) => {
+    startSync: async (_, { connectionId }, ctx) => {
+      return syncManager.startSync({ ctx, connectionId });
+    },
+    createTodo: async (_, { input }, ctx) => {
       const todo = await todoManager.create({
-        ctx: {
-          log: logger,
-          accountId,
-        },
+        ctx,
         todo: {
           ...input,
-          accountId,
+          accountId: ctx.accountId,
         },
       });
 
       return todo;
     },
-    completeTodo: async (_, { id }, { accountId }) => {
+    updateTodo: async (_, { input }, ctx) => {
+      const todo = await todoManager.update({
+        ctx,
+        id: input.id,
+        name: input.name,
+      });
+
+      return todo;
+    },
+    completeTodo: async (_, { id }, ctx) => {
       const todo = await todoManager.complete({
-        ctx: {
-          log: logger,
-          accountId,
-        },
+        ctx,
         id,
       });
 

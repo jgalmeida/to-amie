@@ -2,11 +2,12 @@ import { ApolloServer } from '@apollo/server';
 import { GraphQLError } from 'graphql';
 
 import { env } from '../constants';
-import { logger } from '../logger';
+import { logger, Logger } from '../logger';
 import resolvers from './resolvers';
 import typeDefs from './typedefs';
 
 export interface Context {
+  log: Logger;
   accountId: number;
 }
 

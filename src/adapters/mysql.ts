@@ -90,7 +90,6 @@ export async function seed(): Promise<void> {
         status: Status.Stopped,
         token: TODO_IST_TOKEN,
         syncToken: null,
-        syncTokenExpiresAt: null,
         updatedAt: new Date(),
       },
     }),

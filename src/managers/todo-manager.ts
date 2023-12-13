@@ -1,7 +1,9 @@
 import { Context } from '../entities/context';
 import { OrderBy } from '../entities/enums';
+import { EventType } from '../entities/event';
 import { NewTodo, Todo } from '../entities/todo';
 import * as todoRepository from '../repositories/todos-repository';
+import * as eventManager from './event-manager';
 
 interface FindManyArgs {
   ctx: Context;
@@ -35,7 +37,7 @@ interface CreateArgs {
 }
 
 export async function create({ ctx, todo }: CreateArgs): Promise<Todo> {
-  return todoRepository.create({
+  const newTodo = await todoRepository.create({
     ctx,
     todo: {
       ...todo,
@@ -43,6 +45,40 @@ export async function create({ ctx, todo }: CreateArgs): Promise<Todo> {
       createdAt: new Date(),
     },
   });
+
+  await eventManager.emit({
+    type: EventType.Create,
+    data: newTodo,
+  });
+
+  return newTodo;
+}
+
+interface UpdateArgs {
+  ctx: Context;
+  id: number;
+  name: string;
+}
+
+export async function update({ ctx, id, name }: UpdateArgs): Promise<Todo> {
+  const todo = await findOne({
+    ctx,
+    id,
+  });
+
+  todo.name = name;
+
+  const updatedTodo = await todoRepository.update({
+    ctx,
+    todo,
+  });
+
+  await eventManager.emit({
+    type: EventType.Update,
+    data: updatedTodo,
+  });
+
+  return updatedTodo;
 }
 
 interface CompleteArgs {
@@ -58,8 +94,15 @@ export async function complete({ ctx, id }: CompleteArgs): Promise<Todo> {
 
   todo.completed = true;
 
-  return todoRepository.update({
+  const updatedTodo = await todoRepository.update({
     ctx,
     todo,
   });
+
+  await eventManager.emit({
+    type: EventType.Complete,
+    data: updatedTodo,
+  });
+
+  return updatedTodo;
 }
