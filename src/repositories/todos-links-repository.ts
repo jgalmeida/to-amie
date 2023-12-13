@@ -7,7 +7,7 @@ export const TODOS_LINKS_TABLE = 'todos_links';
 
 interface FindOneArgs {
   ctx: Context;
-  connectionId: string;
+  connectionId: number;
   todoId?: string;
   providerId?: string;
 }
@@ -59,6 +59,7 @@ export async function create({ newTodoLink }: CreateArgs): Promise<TodoLink> {
 export function transform(todo: TodoLink): TodoLinkRow {
   return {
     id: todo.id,
+    account_id: todo.acccountId,
     connection_id: todo.connectionId,
     todo_id: todo.todoId,
     provider_id: todo.providerId,
@@ -68,6 +69,7 @@ export function transform(todo: TodoLink): TodoLinkRow {
 export function reverseTransform(todoLinkRow: TodoLinkRow): TodoLink {
   return {
     id: todoLinkRow.id,
+    acccountId: todoLinkRow.account_id,
     connectionId: todoLinkRow.connection_id,
     todoId: todoLinkRow.todo_id,
     providerId: todoLinkRow.provider_id,

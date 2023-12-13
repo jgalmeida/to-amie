@@ -65,11 +65,12 @@ export function mysqlDateTime(date: Date): string {
 }
 
 export async function seed(): Promise<void> {
+  const conn = getConnection();
   const connectionExists = await connectionRepository.findMany({
     ctx: {
       log: logger as any,
+      accountId: ACCOUNT_ID,
     },
-    accountId: ACCOUNT_ID,
     provider: Provider.TODO_IST,
   });
 
@@ -77,18 +78,28 @@ export async function seed(): Promise<void> {
     return;
   }
 
-  await connectionRepository.create({
-    ctx: {
-      log: logger as any,
-    },
-    newConnection: {
-      accountId: ACCOUNT_ID,
-      provider: Provider.TODO_IST,
-      status: Status.Stopped,
-      token: TODO_IST_TOKEN,
-      syncToken: null,
-      syncTokenExpiresAt: null,
-      updatedAt: new Date(),
-    },
-  });
+  await Promise.all([
+    connectionRepository.create({
+      ctx: {
+        log: logger as any,
+        accountId: ACCOUNT_ID,
+      },
+      newConnection: {
+        accountId: ACCOUNT_ID,
+        provider: Provider.TODO_IST,
+        status: Status.Stopped,
+        token: TODO_IST_TOKEN,
+        syncToken: null,
+        syncTokenExpiresAt: null,
+        updatedAt: new Date(),
+      },
+    }),
+    conn.table('lists').insert(
+      ['Home', 'Shopping', 'Holidays'].map((listName) => ({
+        name: listName,
+        account_id: ACCOUNT_ID,
+        created_at: mysqlDateTime(new Date()),
+      })),
+    ),
+  ]);
 }

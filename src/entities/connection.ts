@@ -8,7 +8,7 @@ export enum Status {
 
 export type Connection = {
   id: number;
-  accountId: string;
+  accountId: number;
   provider: Provider;
   status: Status;
   token: string;
@@ -21,7 +21,7 @@ export type NewConnection = Omit<Connection, 'id'>;
 
 export type ConnectionRow = {
   id: number;
-  account_id: string;
+  account_id: number;
   provider: string;
   status: string;
   token: string;

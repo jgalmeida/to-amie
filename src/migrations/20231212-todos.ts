@@ -6,7 +6,7 @@ export function up(knex: Knex) {
   return knex.schema
     .createTable(LISTS_TABLE, function (table) {
       table.increments('id').primary();
-      table.string('account_id').notNullable();
+      table.integer('account_id').unsigned().notNullable();
       table.string('name').notNullable();
       table.dateTime('created_at').notNullable();
 
@@ -14,19 +14,13 @@ export function up(knex: Knex) {
     })
     .createTable(TODOS_TABLE, function (table) {
       table.increments('id').primary();
-      table.string('account_id').notNullable();
+      table.integer('account_id').unsigned().notNullable();
       table.string('name').notNullable();
       table.boolean('completed').notNullable();
       table.integer('list_id').unsigned().notNullable();
       table.dateTime('created_at').notNullable();
 
       table.index('created_at');
-
-      table
-        .foreign('list_id')
-        .references('id')
-        .inTable(LISTS_TABLE)
-        .onDelete('CASCADE');
     });
 }
 

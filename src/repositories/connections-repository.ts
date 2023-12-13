@@ -13,13 +13,11 @@ export const CONNECTIONS_TABLE = 'connections';
 
 interface FindMany {
   ctx: Context;
-  accountId: string;
   provider: Provider;
   updatedAt?: Date;
 }
 export async function findMany({
   ctx,
-  accountId,
   provider,
   updatedAt,
 }: FindMany): Promise<Connection[]> {
@@ -28,7 +26,7 @@ export async function findMany({
       const connectionsRows = await conn
         .table(CONNECTIONS_TABLE)
         .where((builder) => {
-          builder.where({ account_id: accountId });
+          builder.where({ account_id: ctx.accountId });
           builder.where({ provider });
           isDefined(updatedAt, () => builder.where({ updated_at: updatedAt }));
         });

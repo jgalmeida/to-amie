@@ -10,8 +10,18 @@ const TodoGQL = gql`
   }
 
   extend type Query {
-    todos(limit: Int, after: ID): [Todo]
+    todos(limit: Int, after: Int): [Todo]
     todo(id: Int!): Todo
+  }
+
+  input CreateTodoInput {
+    name: String!
+    listId: Int!
+  }
+
+  extend type Mutation {
+    createTodo(input: CreateTodoInput): Todo
+    completeTodo(id: Int!): Todo
   }
 `;
 

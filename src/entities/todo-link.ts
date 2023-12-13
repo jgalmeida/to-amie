@@ -1,6 +1,7 @@
 export type TodoLink = {
   id: number;
-  connectionId: string;
+  acccountId: number;
+  connectionId: number;
   todoId: string;
   providerId: string;
 };
@@ -9,7 +10,8 @@ export type NewTodoLink = Omit<TodoLink, 'id'>;
 
 export type TodoLinkRow = {
   id: number;
-  connection_id: string;
+  account_id: number;
+  connection_id: number;
   todo_id: string;
   provider_id: string;
 };

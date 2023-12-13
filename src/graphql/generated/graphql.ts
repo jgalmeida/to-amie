@@ -37,6 +37,26 @@ export type Scalars = {
   Date: { input: Date; output: Date };
 };
 
+export type CreateTodoInput = {
+  listId: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  completeTodo?: Maybe<Todo>;
+  createTodo?: Maybe<Todo>;
+  root?: Maybe<Scalars['String']['output']>;
+};
+
+export type MutationCompleteTodoArgs = {
+  id: Scalars['Int']['input'];
+};
+
+export type MutationCreateTodoArgs = {
+  input?: InputMaybe<CreateTodoInput>;
+};
+
 export type Query = {
   __typename?: 'Query';
   root?: Maybe<Scalars['String']['output']>;
@@ -49,7 +69,7 @@ export type QueryTodoArgs = {
 };
 
 export type QueryTodosArgs = {
-  after?: InputMaybe<Scalars['ID']['input']>;
+  after?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -170,9 +190,10 @@ export type DirectiveResolverFn<
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  CreateTodoInput: CreateTodoInput;
   Date: ResolverTypeWrapper<Scalars['Date']['output']>;
-  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Todo: ResolverTypeWrapper<Todo>;
@@ -181,9 +202,10 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
+  CreateTodoInput: CreateTodoInput;
   Date: Scalars['Date']['output'];
-  ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
+  Mutation: {};
   Query: {};
   String: Scalars['String']['output'];
   Todo: Todo;
@@ -193,6 +215,25 @@ export interface DateScalarConfig
   extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
   name: 'Date';
 }
+
+export type MutationResolvers<
+  ContextType = Context,
+  ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation'],
+> = {
+  completeTodo?: Resolver<
+    Maybe<ResolversTypes['Todo']>,
+    ParentType,
+    ContextType,
+    RequireFields<MutationCompleteTodoArgs, 'id'>
+  >;
+  createTodo?: Resolver<
+    Maybe<ResolversTypes['Todo']>,
+    ParentType,
+    ContextType,
+    Partial<MutationCreateTodoArgs>
+  >;
+  root?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+};
 
 export type QueryResolvers<
   ContextType = Context,
@@ -231,6 +272,7 @@ export type TodoResolvers<
 
 export type Resolvers<ContextType = Context> = {
   Date?: GraphQLScalarType;
+  Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Todo?: TodoResolvers<ContextType>;
 };

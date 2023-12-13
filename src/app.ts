@@ -5,7 +5,7 @@ import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 
 import { initDatabaseConnection } from './adapters/mysql';
-import { DatabaseConfig } from './constants';
+import { ACCOUNT_ID, DatabaseConfig } from './constants';
 import { error, lifecycle } from './middlewares';
 import { createApolloServer } from './graphql/server';
 
@@ -23,7 +23,13 @@ export async function createApp(databaseConfig?: DatabaseConfig): Promise<Koa> {
     .use(lifecycle())
     .use(cors())
     .use(bodyParser())
-    .use(koaMiddleware(apolloServer));
+    .use(
+      koaMiddleware(apolloServer, {
+        context: async () => ({
+          accountId: ACCOUNT_ID,
+        }),
+      }),
+    );
 
   return app;
 }

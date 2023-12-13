@@ -6,7 +6,9 @@ import { logger } from '../logger';
 import resolvers from './resolvers';
 import typeDefs from './typedefs';
 
-export interface Context {}
+export interface Context {
+  accountId: number;
+}
 
 export function createApolloServer(): ApolloServer<Context> {
   const server = new ApolloServer<Context>({
