@@ -27,7 +27,7 @@ const TodoGQL = gql`
   }
 
   extend type Query {
-    todos(limit: Int, after: Int): TodosOutput
+    todos(limit: Int, after: Int, completed: Boolean): TodosOutput
     todo(id: Int!): Todo
   }
 

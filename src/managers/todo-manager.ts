@@ -7,14 +7,9 @@ import * as todoRepository from '../repositories/todos-repository';
 import { isDefined } from '../tools/is';
 import * as eventManager from './event-manager';
 
-interface FindManyArgs {
-  ctx: Context;
-  created?: OrderBy;
-  limit?: number;
-  after?: number;
-}
-
-export async function findMany(args: FindManyArgs): Promise<Paginated<Todo[]>> {
+export async function findMany(
+  args: todoRepository.FindManyArgs,
+): Promise<Paginated<Todo[]>> {
   return todoRepository.findMany(args);
 }
 

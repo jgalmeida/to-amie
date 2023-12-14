@@ -7,15 +7,17 @@ import { isDefined } from '../tools/is';
 
 export const TODOS_TABLE = 'todos';
 
-interface FindManyArgs {
+export interface FindManyArgs {
   ctx: Context;
   created?: OrderBy;
+  completed?: boolean;
   limit?: number;
   after?: number;
 }
 export async function findMany({
   ctx,
   created = OrderBy.Asc,
+  completed = false,
   limit = 10,
   after,
 }: FindManyArgs): Promise<Paginated<Todo[]>> {
@@ -26,6 +28,7 @@ export async function findMany({
         .where((builder) => {
           builder.where({ account_id: ctx.accountId });
 
+          isDefined(completed, () => builder.where({ completed }));
           // Incremental ID's, to ease development, also better for pagination without offset usage
           isDefined(after, () => builder.where('id', '>', after));
         })

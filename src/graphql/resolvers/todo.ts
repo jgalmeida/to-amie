@@ -7,9 +7,10 @@ import { DEFAULT_LIST_ID } from '../../constants';
 
 const resolvers: Resolvers = {
   Query: {
-    todos: (_, { limit, after }, ctx) => {
+    todos: (_, { limit, after, completed }, ctx) => {
       return todoManager.findMany({
         ctx,
+        completed,
         limit,
         after,
       });

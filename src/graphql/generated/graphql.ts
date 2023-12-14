@@ -79,6 +79,7 @@ export type QueryTodoArgs = {
 
 export type QueryTodosArgs = {
   after?: InputMaybe<Scalars['Int']['input']>;
+  completed?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
