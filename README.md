@@ -88,7 +88,7 @@ This service ilustrates an integration with the TodoIST provider.
 - Implement oauth flow to enable users to install this integration.
   - secrets and token management and encryption.
 - Sync should be done incrementally, in pages. A message queue can be used to paginate each part of a sync.
-- Errpr handling in the middle of a sync process, to enable resume.
+- Error handling in the middle of a sync process, to enable resume.
 - Implement queues to control sync for different providers.
 - Use batching to create/update todos locally.
 - Use batching when doing incremental sync, buffer operations and do a single call.
@@ -109,6 +109,8 @@ This service ilustrates an integration with the TodoIST provider.
 Create `.env` file and add `TODOIST_TOKEN=<your-token>`
 
 `make start` starts the server
+
+`http://localhost:3000/` has a graphql UI.
 
 `npm test` executes the tests
 
