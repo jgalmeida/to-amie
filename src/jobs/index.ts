@@ -49,7 +49,7 @@ export function initCronJobs() {
         }
       },
       null,
-      false,
+      true,
     ),
   ];
 }
