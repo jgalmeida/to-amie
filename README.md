@@ -47,15 +47,15 @@ This service ilustrates an integration with the TodoIST provider.
 
 ### Queries
 
-`todo(id)` - Fetches a single todo by id
-`todos(limit, after)` - Fetches multiple todos. Supports pagination, limit and grouping.
+- `todo(id)` - Fetches a single todo by id
+- `todos(limit, after)` - Fetches multiple todos. Supports pagination, limit and grouping.
 
 ### Mutations
 
-`createTodo` - Creates a todo.
-`updateTodo` - Updates todo name.
-`completeTodo` - Marks todo as completed.
-`startSync` - Would be called by the user after installing the integration.
+- `createTodo` - Creates a todo.
+- `updateTodo` - Updates todo name.
+- `completeTodo` - Marks todo as completed.
+- `startSync` - Would be called by the user after installing the integration.
 
 ### Sync Engine
 
@@ -106,7 +106,7 @@ This service ilustrates an integration with the TodoIST provider.
 
 ## Scripts
 
-Create `.env` file and add `TODOIST_TOKEN=<your-token>``
+Create `.env` file and add `TODOIST_TOKEN=<your-token>`
 
 `make start` starts the server
 
