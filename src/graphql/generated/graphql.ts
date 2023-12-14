@@ -23,6 +23,18 @@ export type CreateTodoInput = {
   name: Scalars['String']['input'];
 };
 
+export type GroupBy = {
+  __typename?: 'GroupBy';
+  listId?: Maybe<Array<Maybe<GroupByResult>>>;
+  name?: Maybe<Array<Maybe<GroupByResult>>>;
+};
+
+export type GroupByResult = {
+  __typename?: 'GroupByResult';
+  key?: Maybe<Scalars['String']['output']>;
+  todos?: Maybe<Array<Maybe<Todo>>>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   completeTodo?: Maybe<Todo>;
@@ -56,7 +68,7 @@ export type Query = {
   __typename?: 'Query';
   root?: Maybe<Scalars['String']['output']>;
   todo?: Maybe<Todo>;
-  todos?: Maybe<TodoOutput>;
+  todos?: Maybe<TodosOutput>;
 };
 
 
@@ -79,10 +91,11 @@ export type Todo = {
   name?: Maybe<Scalars['String']['output']>;
 };
 
-export type TodoOutput = {
-  __typename?: 'TodoOutput';
+export type TodosOutput = {
+  __typename?: 'TodosOutput';
   after?: Maybe<Scalars['Int']['output']>;
   data?: Maybe<Array<Maybe<Todo>>>;
+  groupBy?: Maybe<GroupBy>;
   hasMore?: Maybe<Scalars['Boolean']['output']>;
 };
 
@@ -165,12 +178,14 @@ export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   CreateTodoInput: CreateTodoInput;
   Date: ResolverTypeWrapper<Scalars['Date']['output']>;
+  GroupBy: ResolverTypeWrapper<GroupBy>;
+  GroupByResult: ResolverTypeWrapper<GroupByResult>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Todo: ResolverTypeWrapper<Todo>;
-  TodoOutput: ResolverTypeWrapper<TodoOutput>;
+  TodosOutput: ResolverTypeWrapper<TodosOutput>;
   UpdateTodoInput: UpdateTodoInput;
 };
 
@@ -179,18 +194,32 @@ export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
   CreateTodoInput: CreateTodoInput;
   Date: Scalars['Date']['output'];
+  GroupBy: GroupBy;
+  GroupByResult: GroupByResult;
   Int: Scalars['Int']['output'];
   Mutation: {};
   Query: {};
   String: Scalars['String']['output'];
   Todo: Todo;
-  TodoOutput: TodoOutput;
+  TodosOutput: TodosOutput;
   UpdateTodoInput: UpdateTodoInput;
 };
 
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
   name: 'Date';
 }
+
+export type GroupByResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GroupBy'] = ResolversParentTypes['GroupBy']> = {
+  listId?: Resolver<Maybe<Array<Maybe<ResolversTypes['GroupByResult']>>>, ParentType, ContextType>;
+  name?: Resolver<Maybe<Array<Maybe<ResolversTypes['GroupByResult']>>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type GroupByResultResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GroupByResult'] = ResolversParentTypes['GroupByResult']> = {
+  key?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  todos?: Resolver<Maybe<Array<Maybe<ResolversTypes['Todo']>>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   completeTodo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<MutationCompleteTodoArgs, 'id'>>;
@@ -203,7 +232,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   root?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   todo?: Resolver<Maybe<ResolversTypes['Todo']>, ParentType, ContextType, RequireFields<QueryTodoArgs, 'id'>>;
-  todos?: Resolver<Maybe<ResolversTypes['TodoOutput']>, ParentType, ContextType, Partial<QueryTodosArgs>>;
+  todos?: Resolver<Maybe<ResolversTypes['TodosOutput']>, ParentType, ContextType, Partial<QueryTodosArgs>>;
 };
 
 export type TodoResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Todo'] = ResolversParentTypes['Todo']> = {
@@ -215,18 +244,21 @@ export type TodoResolvers<ContextType = Context, ParentType extends ResolversPar
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type TodoOutputResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodoOutput'] = ResolversParentTypes['TodoOutput']> = {
+export type TodosOutputResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TodosOutput'] = ResolversParentTypes['TodosOutput']> = {
   after?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   data?: Resolver<Maybe<Array<Maybe<ResolversTypes['Todo']>>>, ParentType, ContextType>;
+  groupBy?: Resolver<Maybe<ResolversTypes['GroupBy']>, ParentType, ContextType>;
   hasMore?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type Resolvers<ContextType = Context> = {
   Date?: GraphQLScalarType;
+  GroupBy?: GroupByResolvers<ContextType>;
+  GroupByResult?: GroupByResultResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Todo?: TodoResolvers<ContextType>;
-  TodoOutput?: TodoOutputResolvers<ContextType>;
+  TodosOutput?: TodosOutputResolvers<ContextType>;
 };
 

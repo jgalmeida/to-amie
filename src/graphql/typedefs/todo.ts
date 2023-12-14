@@ -9,13 +9,25 @@ const TodoGQL = gql`
     createdAt: Date
   }
 
-  type TodoOutput {
+  type GroupBy {
+    listId: [GroupByResult]
+    name: [GroupByResult]
+  }
+
+  type GroupByResult {
+    key: String
+    todos: [Todo]
+  }
+
+  type TodosOutput {
     hasMore: Boolean
     after: Int
     data: [Todo]
+    groupBy: GroupBy
   }
+
   extend type Query {
-    todos(limit: Int, after: Int): TodoOutput
+    todos(limit: Int, after: Int): TodosOutput
     todo(id: Int!): Todo
   }
 

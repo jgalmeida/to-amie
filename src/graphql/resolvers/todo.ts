@@ -1,4 +1,5 @@
-import { Resolvers } from '../generated/graphql';
+import l from 'lodash';
+import { GroupByResult, Resolvers } from '../generated/graphql';
 
 import * as todoManager from '../../managers/todo-manager';
 import * as syncManager from '../../managers/sync-manager';
@@ -17,6 +18,25 @@ const resolvers: Resolvers = {
         ctx,
         id,
       });
+    },
+  },
+  TodosOutput: {
+    groupBy: (parent) => {
+      return parent.data as any;
+    },
+  },
+  GroupBy: {
+    name: (parent) => {
+      return Object.entries(l.groupBy(parent, 'name')).map(([k, v]) => ({
+        key: k,
+        todos: v,
+      })) as unknown as GroupByResult[];
+    },
+    listId: (parent) => {
+      return Object.entries(l.groupBy(parent, 'listId')).map(([k, v]) => ({
+        key: k,
+        todos: v,
+      })) as unknown as GroupByResult[];
     },
   },
   Mutation: {
