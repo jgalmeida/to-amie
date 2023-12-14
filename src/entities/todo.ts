@@ -19,6 +19,7 @@ export type TodoRow = {
   created_at: string;
 };
 
+// This is the interface between the service and providers TODOs
 export type IntegrationTodo = {
   id?: string;
   name: string;

@@ -3,6 +3,7 @@ import { GroupByResult, Resolvers } from '../generated/graphql';
 
 import * as todoManager from '../../managers/todo-manager';
 import * as syncManager from '../../managers/sync-manager';
+import { DEFAULT_LIST_ID } from '../../constants';
 
 const resolvers: Resolvers = {
   Query: {
@@ -48,6 +49,7 @@ const resolvers: Resolvers = {
         ctx,
         todo: {
           ...input,
+          listId: input.listId ?? DEFAULT_LIST_ID,
           accountId: ctx.accountId,
         },
       });

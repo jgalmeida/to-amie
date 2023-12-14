@@ -19,7 +19,7 @@ export type Scalars = {
 };
 
 export type CreateTodoInput = {
-  listId: Scalars['Int']['input'];
+  listId?: InputMaybe<Scalars['Int']['input']>;
   name: Scalars['String']['input'];
 };
 

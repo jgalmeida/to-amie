@@ -26,6 +26,7 @@ export async function findMany({
         .where((builder) => {
           builder.where({ account_id: ctx.accountId });
 
+          // Incremental ID's, to ease development, also better for pagination without offset usage
           isDefined(after, () => builder.where('id', '>', after));
         })
         .orderBy('created_at', created)

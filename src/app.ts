@@ -42,7 +42,11 @@ export async function createApp(
   return {
     app,
     stopApp: async () => {
-      jobs.forEach((job) => job.stop());
+      try {
+        await Promise.all(jobs.map((job) => job.stop()));
+      } catch (e) {
+        logger.error(e);
+      }
     },
   };
 }

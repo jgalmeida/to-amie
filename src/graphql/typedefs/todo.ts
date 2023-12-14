@@ -33,7 +33,7 @@ const TodoGQL = gql`
 
   input CreateTodoInput {
     name: String!
-    listId: Int!
+    listId: Int
   }
 
   input UpdateTodoInput {

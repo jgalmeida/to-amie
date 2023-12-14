@@ -15,7 +15,10 @@ import { truncateTables } from '../tools/mysql';
 
 let app: SuperTest<Test>;
 
-describe('TODOS', () => {
+/*
+ * Just an example of how a test would look like
+ */
+describe('Todos', () => {
   jest.setTimeout(60000);
 
   beforeAll(async () => {
@@ -31,7 +34,7 @@ describe('TODOS', () => {
       await truncateTables();
     });
 
-    it('should test', () => {
+    it('should pass', () => {
       expect(1).toBe;
     });
   });
