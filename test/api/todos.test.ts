@@ -10,8 +10,8 @@ import {
 import { SuperTest, Test } from 'supertest';
 
 import { startApp, stopApp } from '../app';
-import { createNewTodo, createTodo } from '../fixtures';
-import { seedTodos, truncateTables } from '../tools/mysql';
+
+import { truncateTables } from '../tools/mysql';
 
 let app: SuperTest<Test>;
 
@@ -29,6 +29,10 @@ describe('TODOS', () => {
   describe('Create TODO', () => {
     beforeEach(async () => {
       await truncateTables();
+    });
+
+    it('should test', () => {
+      expect(1).toBe;
     });
   });
 });

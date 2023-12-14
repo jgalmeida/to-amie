@@ -14,14 +14,16 @@ import { initCronJobs } from './jobs';
 
 dotenv.config();
 
-export async function createApp(databaseConfig?: DatabaseConfig): Promise<Koa> {
+export async function createApp(
+  databaseConfig?: DatabaseConfig,
+): Promise<{ app: Koa; stopApp: () => Promise<void> }> {
   const app = new Koa();
   const apolloServer = createApolloServer();
   await apolloServer.start();
 
   await initDatabaseConnection(databaseConfig);
   initListeners();
-  initCronJobs();
+  const jobs = initCronJobs();
 
   app
     .use(error)
@@ -37,5 +39,10 @@ export async function createApp(databaseConfig?: DatabaseConfig): Promise<Koa> {
       }),
     );
 
-  return app;
+  return {
+    app,
+    stopApp: async () => {
+      jobs.forEach((job) => job.stop());
+    },
+  };
 }

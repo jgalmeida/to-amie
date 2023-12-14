@@ -5,7 +5,7 @@ import { logger } from '../logger';
 const port = process.env.PORT || 3000;
 
 async function init() {
-  const app = await createApp(databaseConfig);
+  const { app } = await createApp(databaseConfig);
 
   app.listen(port, () => {
     logger.info(`[server]: Server is running at http://localhost:${port}`);
