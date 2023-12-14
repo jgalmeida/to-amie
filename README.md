@@ -41,8 +41,9 @@ This service ilustrates an integration with the TodoIST provider.
 
 - User authentication/registration wasn't implemented, hence the usage of the API token.
 - The data model is prepared to be multi tenant with an `account` being the tenant.
-- There is an hardcoded ACCOUNT_ID to mimic an existing account.
-- During the initial service boot, the database is seeded with a connection using this account and the `TODOIST_TOKEN` token.
+- There is an [hardcoded](https://github.com/jgalmeida/t-amie/blob/main/src/constants.ts#L26-L30) `ACCOUNT_ID`` to mimic an existing account.
+  - This account is used as the [graphql context](https://github.com/jgalmeida/t-amie/blob/main/src/app.ts#L34-L37)
+- During the initial service boot, the database is [seeded](https://github.com/jgalmeida/t-amie/blob/main/src/adapters/mysql.ts#L67) with a connection using this account and the `TODOIST_TOKEN` token.
 - Tokens/Secrets aren't encrypted, but they should :)
 
 ### Queries
@@ -59,15 +60,15 @@ This service ilustrates an integration with the TodoIST provider.
 
 ### Sync Engine
 
-- Todo operations are propagated as events. `todo-manager` emits events for each operation.
-- `sync-manager` the main responsible for the sync logic.
+- Todo operations are propagated as events. [`todo-manager`](https://github.com/jgalmeida/t-amie/blob/main/src/managers/todo-manager.ts) [emits events](https://github.com/jgalmeida/t-amie/blob/main/src/managers/todo-manager.ts#L51) for each operation.
+- [`sync-manager`](https://github.com/jgalmeida/t-amie/blob/main/src/managers/sync-manager.ts) the main responsible for the sync logic.
 - `todo-ist-writter` is listening for the changes and propagating to TodoIST provider.
 - The objective of this event/listener pattern is to ilustrate the ability to integrate with other providers.
   - Ideally the events would be generated using an Outbox Pattern to have transaction guarantee that each change generates an event.
 - The listeners would be subscribed to a messaging system (RabbitMQ, Kafka, etc)
-- The `providers` have a set of shared functions, so the system can dynamically instantiate the correct provider for an integration. Example, see `todoist-provider`.
-- The `IntegrationTodo` entity represents the interface between the service and a provider implementation.
-- The `startSync` mutation does
+- The `providers` have a set of shared functions, so the system can dynamically instantiate the correct provider for an integration. Example, [see](https://github.com/jgalmeida/t-amie/blob/main/src/managers/providers/index.ts) [`todoist-provider`](https://github.com/jgalmeida/t-amie/blob/main/src/managers/providers/todoist-provider.ts).
+- The [`IntegrationTodo`](https://github.com/jgalmeida/t-amie/blob/main/src/entities/todo.ts#L23) entity represents the interface between the service and a provider implementation.
+- The `startSync` mutation [initializes the sync process](https://github.com/jgalmeida/t-amie/blob/main/src/managers/sync-manager.ts#L31)
   - An `Inbound` sync, syncing todos from the provider to the service.
   - An `Outbound` sync, syncing todos from the service to the provider.
   - **Completed or deleted todos are ignored.**
