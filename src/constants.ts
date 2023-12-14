@@ -27,3 +27,4 @@ assert(process.env.TODOIST_TOKEN, 'Please provide TODOIST api token');
 export const TODO_IST_TOKEN = process.env.TODOIST_TOKEN;
 
 export const ACCOUNT_ID = 1;
+export const DEFAULT_LIST_ID = 1;

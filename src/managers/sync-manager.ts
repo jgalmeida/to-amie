@@ -6,6 +6,7 @@ import * as todoLinksManager from './todo-links-manager';
 import { Connection, Status } from '../entities/connection';
 import { Paginated } from '../entities/common';
 import { Todo } from '../entities/todo';
+import { DEFAULT_LIST_ID } from '../constants';
 
 interface StartSyncArgs {
   ctx: Context;
@@ -88,7 +89,7 @@ export async function inboundSync({ ctx, connection }: SyncArgs) {
             ctx,
             todo: {
               accountId: connection.accountId,
-              listId: 1,
+              listId: DEFAULT_LIST_ID,
               name: providerTodo.name,
             },
           });
@@ -272,7 +273,7 @@ export async function incrementalSync({
               ctx,
               todo: {
                 accountId: connection.accountId,
-                listId: 1,
+                listId: DEFAULT_LIST_ID,
                 name: providerTodo.name,
               },
             });
