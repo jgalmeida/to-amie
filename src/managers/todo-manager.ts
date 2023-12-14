@@ -4,6 +4,7 @@ import { OrderBy } from '../entities/enums';
 import { EventType } from '../entities/event';
 import { NewTodo, Todo } from '../entities/todo';
 import * as todoRepository from '../repositories/todos-repository';
+import { isDefined } from '../tools/is';
 import * as eventManager from './event-manager';
 
 interface FindManyArgs {
@@ -59,15 +60,23 @@ interface UpdateArgs {
   ctx: Context;
   id: number;
   name: string;
+  completed?: boolean;
 }
 
-export async function update({ ctx, id, name }: UpdateArgs): Promise<Todo> {
+export async function update({
+  ctx,
+  id,
+  name,
+  completed,
+}: UpdateArgs): Promise<Todo> {
   const todo = await findOne({
     ctx,
     id,
   });
 
   todo.name = name;
+
+  isDefined(completed, () => (todo.completed = completed));
 
   const updatedTodo = await todoRepository.update({
     ctx,

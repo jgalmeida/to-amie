@@ -2,6 +2,12 @@ import { v4 } from 'uuid';
 import { request } from '../../adapters/http';
 import { IntegrationTodo } from '../../entities/todo';
 
+/*
+ * To improve this class should use batching
+ * each function call create/complete/update could add the command
+ * to a buffer
+ * Then, a sync function would be called to batch send all commands
+ */
 interface ProviderContext {
   syncToken: string;
 }
@@ -10,6 +16,7 @@ type TodoIST = {
   id: string;
   checked: boolean;
   content: string;
+  is_deleted: boolean;
   added_at: string;
 };
 
@@ -160,6 +167,7 @@ export function transform(todo: IntegrationTodo): TodoIST {
     id: todo.id,
     checked: todo.completed,
     content: todo.name,
+    is_deleted: false,
     added_at: todo.createdAt.toISOString(),
   };
 }
@@ -169,6 +177,7 @@ export function reverseTransform(todoIst: TodoIST): IntegrationTodo {
     id: todoIst.id,
     name: todoIst.content,
     completed: todoIst.checked,
+    isDeleted: todoIst.is_deleted,
     createdAt: new Date(todoIst.added_at),
   };
 }

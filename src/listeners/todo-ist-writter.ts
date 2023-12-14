@@ -23,6 +23,20 @@ export async function onEventWriteTodoIst(event: Event): Promise<void> {
 
   switch (event.type) {
     case EventType.Create: {
+      const link = await todoLinksManager.findOne({
+        ctx,
+        connectionId: connection.id,
+        todoId: todo.id,
+      });
+
+      if (link) {
+        ctx.log.info(
+          'Skipping propagation to provider - Link already exists...',
+        );
+
+        return;
+      }
+
       const { id, syncToken } = await todoIstProvider.create({
         ctx: {
           syncToken: connection.syncToken,
@@ -31,6 +45,7 @@ export async function onEventWriteTodoIst(event: Event): Promise<void> {
           id: String(todo.id),
           name: todo.name,
           completed: todo.completed,
+          isDeleted: false,
           createdAt: todo.createdAt,
         },
       });
@@ -72,6 +87,7 @@ export async function onEventWriteTodoIst(event: Event): Promise<void> {
           id: link.providerId,
           name: todo.name,
           completed: todo.completed,
+          isDeleted: false,
           createdAt: todo.createdAt,
         },
       });
@@ -103,6 +119,7 @@ export async function onEventWriteTodoIst(event: Event): Promise<void> {
           id: link.providerId,
           name: todo.name,
           completed: todo.completed,
+          isDeleted: false,
           createdAt: todo.createdAt,
         },
       });

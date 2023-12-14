@@ -7,7 +7,7 @@ import { logger } from '../logger';
 export function initCronJobs() {
   return [
     new CronJob(
-      '*/10 * * * * *',
+      '*/30 * * * * *',
       async function () {
         try {
           /*
@@ -23,7 +23,7 @@ export function initCronJobs() {
           );
 
           for (const connection of connectionsToSync) {
-            await syncManager.inboundSync({
+            await syncManager.incrementalSync({
               ctx: {
                 accountId: connection.accountId,
                 log: logger,

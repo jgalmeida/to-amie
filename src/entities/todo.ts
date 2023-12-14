@@ -23,5 +23,6 @@ export type IntegrationTodo = {
   id?: string;
   name: string;
   completed: boolean;
+  isDeleted: boolean;
   createdAt: Date;
 };

@@ -17,6 +17,8 @@ interface SyncArgs {
   connection: Connection;
   currentSyncToken?: string;
 }
+
+const inboundCreatedIds: Record<string, Record<string, boolean>> = {};
 /*
  *
  * If the process crashes in the middle of the initial sync, it needs to start from scratch
@@ -33,6 +35,8 @@ export async function startSync({
   connection.status = Status.Warming;
   await connectionManager.update({ ctx, connection });
 
+  inboundCreatedIds[connection.accountId] = {};
+
   ctx.log.info('[Inbound sync] - Start');
   await inboundSync({ ctx, connection });
   ctx.log.info('[Inbound sync] - Finish');
@@ -47,25 +51,23 @@ export async function startSync({
   return true;
 }
 
-export async function inboundSync({
-  ctx,
-  connection,
-  currentSyncToken = undefined,
-}: SyncArgs) {
+export async function inboundSync({ ctx, connection }: SyncArgs) {
   const provider = providerManager.build(connection.provider, connection.token);
 
   const { todos, syncToken } = await provider.findMany({
-    syncToken: currentSyncToken,
+    syncToken: undefined,
   });
-
-  /*   connection.syncToken = syncToken;
-  await connectionManager.update({ ctx, connection });
-
-  return; */
 
   const localPromisses = [];
 
   for (const providerTodo of todos) {
+    /*
+     * Won't sync completed or deleted todos during the fist inbound sync
+     */
+    if (providerTodo.completed || providerTodo.isDeleted) {
+      continue;
+    }
+
     localPromisses.push(
       new Promise(async (resolve, reject) => {
         try {
@@ -102,6 +104,8 @@ export async function inboundSync({
             },
           });
 
+          inboundCreatedIds[connection.accountId][todo.id] = true;
+
           resolve(true);
         } catch (e) {
           reject(e);
@@ -137,6 +141,13 @@ export async function outboundSync({ ctx, connection }: SyncArgs) {
     }
 
     for (const todo of paginatedTodos.data) {
+      /*
+       * Skip sending todos created during the first inbound sync
+       */
+      if (inboundCreatedIds[connection.accountId][todo.id]) {
+        continue;
+      }
+
       promises.push(
         new Promise(async (resolve, reject) => {
           try {
@@ -160,6 +171,7 @@ export async function outboundSync({ ctx, connection }: SyncArgs) {
               todo: {
                 name: todo.name,
                 completed: todo.completed,
+                isDeleted: false,
                 createdAt: todo.createdAt,
               },
             });
@@ -176,7 +188,6 @@ export async function outboundSync({ ctx, connection }: SyncArgs) {
             });
 
             connection.syncToken = providerResponse.syncToken;
-            await connectionManager.update({ ctx, connection });
 
             resolve(true);
           } catch (e) {
@@ -195,5 +206,98 @@ export async function keepSyncing({ ctx, connection }: SyncArgs) {
    * There is a job taking syncing all connection in syncing state
    */
   connection.status = Status.Ready;
+  await connectionManager.update({ ctx, connection });
+}
+
+interface IncrementalSyncArgs {
+  ctx: Context;
+  connection: Connection;
+  currentSyncToken: string;
+}
+export async function incrementalSync({
+  ctx,
+  connection,
+  currentSyncToken,
+}: IncrementalSyncArgs) {
+  const provider = providerManager.build(connection.provider, connection.token);
+
+  const { todos, syncToken } = await provider.findMany({
+    syncToken: currentSyncToken,
+  });
+
+  ctx.log.info(`Syncing ${todos.length} for account ${connection.accountId}`);
+
+  const localPromisses = [];
+
+  for (const providerTodo of todos) {
+    /*
+     * Won't sync deleted todos
+     */
+    if (providerTodo.isDeleted) {
+      continue;
+    }
+
+    localPromisses.push(
+      new Promise(async (resolve, reject) => {
+        try {
+          const link = await todoLinksManager.findOne({
+            ctx,
+            connectionId: connection.id,
+            providerId: providerTodo.id,
+          });
+
+          /*
+           * Update or Create locally
+           */
+          if (link) {
+            const localTodo = await todoManager.findOne({
+              ctx,
+              id: link.todoId,
+            });
+
+            if (
+              localTodo.name !== providerTodo.name ||
+              localTodo.completed !== providerTodo.completed
+            ) {
+              await todoManager.update({
+                ctx,
+                id: localTodo.id,
+                name: providerTodo.name,
+                completed: providerTodo.completed,
+              });
+            }
+          } else {
+            // This could be done in bulk
+            const todo = await todoManager.create({
+              ctx,
+              todo: {
+                accountId: connection.accountId,
+                listId: 1,
+                name: providerTodo.name,
+              },
+            });
+
+            // This could be done in bulk
+            await todoLinksManager.create({
+              ctx,
+              todoLink: {
+                acccountId: connection.accountId,
+                connectionId: connection.id,
+                todoId: todo.id,
+                providerId: providerTodo.id,
+              },
+            });
+          }
+          resolve(true);
+        } catch (e) {
+          reject(e);
+        }
+      }),
+    );
+  }
+
+  await Promise.all(localPromisses);
+
+  connection.syncToken = syncToken;
   await connectionManager.update({ ctx, connection });
 }

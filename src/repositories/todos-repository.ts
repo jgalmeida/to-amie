@@ -111,7 +111,7 @@ export function reverseTransform(todoRow: TodoRow): Todo {
     id: todoRow.id,
     accountId: todoRow.account_id,
     name: todoRow.name,
-    completed: todoRow.completed,
+    completed: Boolean(todoRow.completed),
     listId: todoRow.list_id,
     createdAt: new Date(todoRow.created_at),
   };
