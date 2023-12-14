@@ -54,6 +54,11 @@ This service ilustrates an integration with the TodoIST provider.
 ### Mutations
 
 - `createTodo` - Creates a todo.
+  - Has 4 status:
+    - Stopped - When it's first created.
+    - Warming - When the initial local <-> provider sync is being done.
+    - Ready - When it's ready to for the incremental sync.
+    - Syncing - When it's syncing.
 - `updateTodo` - Updates todo name.
 - `completeTodo` - Marks todo as completed.
 - `startSync` - Would be called by the user after installing the integration.
@@ -73,6 +78,7 @@ This service ilustrates an integration with the TodoIST provider.
   - An `Outbound` sync, syncing todos from the service to the provider.
   - **Completed or deleted todos are ignored.**
   - After the initial sync, the connection starts doing incremental syncs, picked up by a cron job.
+    - Connection status get's updated to `syncing` and after the incremental sync is done goes back to `ready`
 
 ### Jobs
 
