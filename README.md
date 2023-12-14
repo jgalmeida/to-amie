@@ -116,6 +116,8 @@ This service ilustrates an integration with the TodoIST provider.
 Create `.env` file and add `TODOIST_TOKEN=<your-token>`
 
 `make start` starts the server
+`npm run gen-ts` to run codegen.
+`npm run build:watch` to build Typescript.
 
 `http://localhost:3000/` has a graphql UI.
 
